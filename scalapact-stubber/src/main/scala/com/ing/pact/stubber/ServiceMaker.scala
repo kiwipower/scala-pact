@@ -1,7 +1,5 @@
 package com.ing.pact.stubber
 
-import java.util.concurrent.{ExecutorService, Executors}
-
 import com.itv.scalapact.shared._
 import com.itv.scalapact.shared.http.HeaderImplicitConversions._
 import com.itv.scalapact.shared.http.{Http4sRequestResponseFactory, IntAndReason}
@@ -12,9 +10,6 @@ import org.http4s.util.CaseInsensitiveString
 import scalaz.concurrent.Task
 
 trait ServiceMaker {
-
-  private val nThreads: Int = 10
-  private val executorService: ExecutorService = Executors.newFixedThreadPool(nThreads)
 
   private val isAdminCall: Request => Boolean = request =>
     request.headers.get(CaseInsensitiveString("X-Pact-Admin")).exists(h => h.value == "true")

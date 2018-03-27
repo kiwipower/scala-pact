@@ -20,7 +20,7 @@ trait FromConfigWithKey[T] {
 object FromConfigWithKey {
 
   implicit object FromConfigWithKeyForString extends FromConfigWithKey[String] {
-    override def apply(name: String, config: Config): String = config.getString(name);
+    override def apply(name: String, config: Config): String = config.getString(name)
   }
 
 }
@@ -43,7 +43,7 @@ trait MessageFormatData[T] extends (T => Seq[String])
 
 object MessageFormatData extends Pimpers {
 
-  def apply[T](t: T)(implicit messageFormatData: MessageFormatData[T]) = messageFormatData(t)
+  def apply[T](t: T)(implicit messageFormatData: MessageFormatData[T]): Seq[String] = messageFormatData(t)
 
   implicit object MessageFormatDataForUnit extends MessageFormatData[Unit] {
     override def apply(v1: Unit): Seq[String] = Seq()
@@ -53,8 +53,8 @@ object MessageFormatData extends Pimpers {
     override def apply(v1: String): Seq[String] = Seq(v1)
   }
 
-  implicit def messageFormatDataForOption[T](implicit mf: MessageFormatData[T]): MessageFormatData[Option[T]] = new MessageFormatData[Option[T]] {
-    override def apply(v1: Option[T]): Seq[String] = Seq(v1.fold("")(_.toString))
+  implicit def messageFormatDataForOption[T](implicit showable: Showable[T]): MessageFormatData[Option[T]] = new MessageFormatData[Option[T]] {
+    override def apply(v1: Option[T]): Seq[String] = Seq(v1.fold("")(showable.show))
   }
   implicit def messageFormatDataForTuple2[L, R](implicit mfl: MessageFormatData[L], mfr: MessageFormatData[R]): MessageFormatData[(L, R)] = new MessageFormatData[(L, R)] {
     override def apply(v1: (L, R)): Seq[String] = mfl(v1._1) ++ mfr(v1._2)
@@ -107,9 +107,9 @@ trait Pimpers {
 
     /** This is for those times when you want the result to be fed into a chain for functions, but also want it available for downstream methods */
     def mapWith[T1](fn: T => T => T1): Seq[T1] = seq.map(t => fn(t)(t))
-    def printWithTitle[TitleObject: MessageFormatData](title: String, titleObject: TitleObject)(implicit resourceBundle: ResourceBundle): Seq[T] = {
+    def printWithTitle[TitleObject: MessageFormatData](title: String, titleObject: TitleObject)(implicit resourceBundle: ResourceBundle, showable: Showable[T]): Seq[T] = {
       if (seq.nonEmpty) title.printlnFromBundle(titleObject)
-      seq.foreach(println)
+      seq.foreach(t => println(showable.show(t)))
       seq
     }
     def ifNotEmpty(block: => Unit): Seq[T] = {
@@ -147,4 +147,19 @@ trait Pimpers {
   def fromConfig(name: String)(config: Config): (Config, String) = (config, name)
   def makeListFromConfig[A: FromConfigWithKey](key: String)(config: Config): Seq[A] = config.mapList(key)
 
+}
+
+trait Showable[T] {
+  def show(t: T): String
+}
+object Showable {
+
+  implicit val stringShowable: Showable[String] =
+    create(str => str)
+
+  def create[T](f: T => String): Showable[T] = {
+    new Showable[T] {
+      def show(t: T): String = f(t)
+    }
+  }
 }

@@ -6,19 +6,22 @@ import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
 import scala.collection.concurrent.TrieMap
 
-case class SSLContextData(keyManagerFactoryPassword: String, keyStore: String, passphrase: String, trustStore: String, trustPassphrase: String)
+case class SSLContextData(keyManagerFactoryPassword: String, keyStore: String, passphrase: String, trustStore: String, trustPassphrase: String) {
+  override def toString: String =
+    s"""SSLContextData($keyManagerFactoryPassword, $keyStore, $passphrase, $trustStore, $trustPassphrase)"""
+}
 
 object SSLContextData {
-  private var keyStore = "javax.net.ssl.keyStore"
-  private var keyStorePass = "javax.net.ssl.keyStorePassword"
-  private var truststore = "javax.net.ssl.trustStore"
-  private var trustStorePassword = "javax.net.ssl.trustStorePassword"
+  private val keyStore = "javax.net.ssl.keyStore"
+  private val keyStorePass = "javax.net.ssl.keyStorePassword"
+  private val truststore = "javax.net.ssl.trustStore"
+  private val trustStorePassword = "javax.net.ssl.trustStorePassword"
 
   private def get(key: String) = {
     val result = System.getProperty(key)
     if (result == null) throw new NullPointerException(s"System property [$key] is null")
     result
-  };
+  }
   def fromSystemProperties(): SSLContextData = SSLContextData(get(keyStorePass), get(keyStore), get(keyStorePass), get(truststore), get(trustStorePassword))
 
 }
@@ -31,7 +34,7 @@ object SSLContextDataToSslContext {
     import data._
     val ksKeys: KeyStore = KeyStore.getInstance("JKS")
     val ksTrust = KeyStore.getInstance("JKS")
-    def load(keyStore: KeyStore, store: String, password: String) = try {
+    def load(keyStore: KeyStore, store: String, password: String): Unit = try {
       val inputStream = new FileInputStream(store)
       keyStore.load(inputStream, passphrase.toCharArray)
     } catch {
@@ -70,7 +73,7 @@ class SslContextMap(dataMap: Map[String, SSLContextData])(implicit sSLContextDat
 
   def legalValues: List[String] = dataMap.keys.toList.sorted
 
-  override def toString() = s"SslContextMap($dataMap)"
+  override def toString: String = s"SslContextMap($dataMap)"
 }
 
 class SslContextNotFoundException(name: String, sslContextMap: SslContextMap) extends Exception(s"SslContext [$name] not found. Legal values are [${sslContextMap.legalValues}]")
