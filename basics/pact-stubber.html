@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 
 <head>
-<title>Pact Broker · Scala-Pact</title>
+<title>Pact Stubber · Scala-Pact</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content='scalapact-docs'/>
@@ -41,14 +41,14 @@
     <li><a href="../basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="../basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="../basics/test-frameworks.html" class="page">Test frameworks</a></li>
-    <li><a href="../basics/pact-stubber.html" class="page">Pact Stubber</a></li>
+    <li><a href="../basics/pact-stubber.html" class="active page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="../advanced/index.html" class="page">Advanced usage</a>
   <ul>
     <li><a href="../advanced/provider-states.html" class="page">Provider states</a></li>
     <li><a href="../advanced/strict-mode.html" class="page">Strict mode</a></li>
     <li><a href="../advanced/matching-rules.html" class="page">Matching rules</a></li>
-    <li><a href="../advanced/pact-broker.html" class="active page">Pact Broker</a></li>
+    <li><a href="../advanced/pact-broker.html" class="page">Pact Broker</a></li>
   </ul></li>
   <li><a href="../articles/index.html" class="page">Articles</a>
   <ul>
@@ -108,14 +108,14 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="../basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="../basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="../basics/test-frameworks.html" class="page">Test frameworks</a></li>
-    <li><a href="../basics/pact-stubber.html" class="page">Pact Stubber</a></li>
+    <li><a href="../basics/pact-stubber.html" class="active page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="../advanced/index.html" class="page">Advanced usage</a>
   <ul>
     <li><a href="../advanced/provider-states.html" class="page">Provider states</a></li>
     <li><a href="../advanced/strict-mode.html" class="page">Strict mode</a></li>
     <li><a href="../advanced/matching-rules.html" class="page">Matching rules</a></li>
-    <li><a href="../advanced/pact-broker.html" class="active page">Pact Broker</a></li>
+    <li><a href="../advanced/pact-broker.html" class="page">Pact Broker</a></li>
   </ul></li>
   <li><a href="../articles/index.html" class="page">Articles</a>
   <ul>
@@ -147,8 +147,8 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-breadcrumbs">
 <ul>
   <li><a href="../index.html">Scala-Pact</a></li>
-  <li><a href="../advanced/index.html">Advanced usage</a></li>
-  <li>Pact Broker</li>
+  <li><a href="../basics/index.html">Basic usage</a></li>
+  <li>Pact Stubber</li>
 </ul>
 </div>
 </div>
@@ -156,17 +156,30 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
-<h1><a href="#pact-broker" name="pact-broker" class="anchor"><span class="anchor-link"></span></a>Pact Broker</h1>
-<p>During your build process, you will need a mechanism for delivering the Pact files your consumer tests generate to your provider ready for verification. Or if you are the provider service, you will need somewhere you can collect the Pact contract files your consumers generate.</p>
-<p>You can do this any way you like, they are just JSON files after all, but the tool of choice is <a href="https://github.com/bethesque/pact_broker">pact-broker</a>. Pact Broker is a Ruby service that allows you to upload, look up, and retrieve versioned Pact files.</p>
-<h4><a href="#" name="" class="anchor"><span class="anchor-link"></span></a><em>An opinionated note on versioning:</em></h4>
-<p>Focus on versioning your API&rsquo;s not your Pact files! It can be handy to have versions of Pact files around but you should avoid pushing breaking API changes and communicating them to your provider with versioned Pact files. A breaking API change is a new API version. Theoretically your provider should always be able to ask for the latest Pact files for each API version and have confidence that they are correct.</p>
+<h1><a href="#pact-stubber" name="pact-stubber" class="anchor"><span class="anchor-link"></span></a>Pact Stubber</h1>
+<p>Scala-Pact comes bundled with the ability to use Pact contracts to run stub versions of services.</p>
+<h2><a href="#stubbing-with-the-plugin" name="stubbing-with-the-plugin" class="anchor"><span class="anchor-link"></span></a>Stubbing with the plugin</h2>
+<p>The most convenient use of the stubber is to run it from within you consumer project. This gives you a running service that pretends to be all of your upstream dependencies at once to help with local testing. This is achieve with the <code>pactStub</code> or more thorough <code>pactStubber</code> tasks. See <a href="sbt-commands.html">SBT Commands</a>.</p>
+<h2><a href="#standalone-stubber" name="standalone-stubber" class="anchor"><span class="anchor-link"></span></a>Standalone stubber</h2>
+<p>If you want to run a Pact based stub service without SBT or for Pact&rsquo;s you aren&rsquo;t generating, we also have a standalone implementation. The usage of which is identical to the sbt command.</p>
+<p>Just one catch, you need to build your own jar! Roughly like this assuming you have java and SBT installed:</p>
+<pre><code>git clone git@github.com:ITV/scala-pact.git
+cd scala-pact
+sbt standalone/assembly
+cp scalapact-standalone-stubber/target/scala-2.12/pactstubber.jar .
+</code></pre>
+<p>..and then you can run it like this where &ldquo;pacts&rdquo; is a folder containing pact json contracts:</p>
+<pre><code>java -jar pactstubber.jar --port 8080 --source pacts
+</code></pre>
+<p>..and then call it, in this case using <code>curl</code> to a <code>/results</code> endpoint defined in one of the loaded contract files:</p>
+<pre><code>curl localhost:8080/results
+</code></pre>
 <div class="source-github">
-The source code for this page can be found <a href="https://github.com/ITV/scala-pact/tree/master/scalapact-docs/src/main/paradox/advanced/pact-broker.md">here</a>.
+The source code for this page can be found <a href="https://github.com/ITV/scala-pact/tree/master/scalapact-docs/src/main/paradox/basics/pact-stubber.md">here</a>.
 </div>
 
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="../articles/index.html">Articles</a></p>
+<p><strong>Next:</strong> <a href="../advanced/index.html">Advanced usage</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>
@@ -175,9 +188,10 @@ The source code for this page can be found <a href="https://github.com/ITV/scala
 <div class="nav-title">On this page:</div>
 <div class="nav-toc">
 <ul>
-  <li><a href="../advanced/pact-broker.html#pact-broker" class="header">Pact Broker</a>
+  <li><a href="../basics/pact-stubber.html#pact-stubber" class="header">Pact Stubber</a>
   <ul>
-    <li><a href="../advanced/pact-broker.html#" class="header"><em>An opinionated note on versioning:</em></a></li>
+    <li><a href="../basics/pact-stubber.html#stubbing-with-the-plugin" class="header">Stubbing with the plugin</a></li>
+    <li><a href="../basics/pact-stubber.html#standalone-stubber" class="header">Standalone stubber</a></li>
   </ul></li>
 </ul>
 </div>

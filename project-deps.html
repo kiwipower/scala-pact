@@ -30,7 +30,7 @@
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.2.4*
+2.3.0-RC1
 </div>
 </div>
 <div class="nav-toc">
@@ -41,6 +41,7 @@
     <li><a href="basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="basics/test-frameworks.html" class="page">Test frameworks</a></li>
+    <li><a href="basics/pact-stubber.html" class="page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="advanced/index.html" class="page">Advanced usage</a>
   <ul>
@@ -96,7 +97,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.2.4*
+2.3.0-RC1
 </div>
 </div>
 <div class="nav-toc">
@@ -107,6 +108,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="basics/test-frameworks.html" class="page">Test frameworks</a></li>
+    <li><a href="basics/pact-stubber.html" class="page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="advanced/index.html" class="page">Advanced usage</a>
   <ul>
@@ -155,6 +157,8 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="small-12 large-9 column" id="docs">
 <h1><a href="#dependencies" name="dependencies" class="anchor"><span class="anchor-link"></span></a>Dependencies</h1>
 <p>The Pact integration test library itself depends on other of Scala libraries to make it work. Specifically it needs an Http and a JSON library.</p>
+<h2><a href="#scala-pact-2-3-x" name="scala-pact-2-3-x" class="anchor"><span class="anchor-link"></span></a>Scala-Pact 2.3.x</h2>
+<p>Currently, everything works with everything. Your only limitation is that you must be using Scala 2.12.x and SBT 1.x.</p>
 <h2><a href="#scala-pact-2-2-x" name="scala-pact-2-2-x" class="anchor"><span class="anchor-link"></span></a>Scala-Pact 2.2.x</h2>
 <p>Versions of Scala-Pact have their dependencies baked in. The benefit was that it made development of the library initially easy, but as more people tried to adopt it, reports came in that it was causing massive dependency conflicts for fairly obvious reasons.</p>
 <p>To tackle this, Scala-Pact now supports a range of libraries and versions. We can add more, and <a href="contributing.html">pull-requests are welcome</a>.</p>
@@ -201,6 +205,7 @@ The source code for this page can be found <a href="https://github.com/ITV/scala
 <ul>
   <li><a href="project-deps.html#dependencies" class="header">Dependencies</a>
   <ul>
+    <li><a href="project-deps.html#scala-pact-2-3-x" class="header">Scala-Pact 2.3.x</a></li>
     <li><a href="project-deps.html#scala-pact-2-2-x" class="header">Scala-Pact 2.2.x</a></li>
     <li><a href="project-deps.html#prior-to-version-2-2-0" class="header">Prior to version 2.2.0</a></li>
   </ul></li>

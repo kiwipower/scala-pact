@@ -30,7 +30,7 @@
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.2.4*
+2.3.0-RC1
 </div>
 </div>
 <div class="nav-toc">
@@ -41,6 +41,7 @@
     <li><a href="basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="basics/test-frameworks.html" class="page">Test frameworks</a></li>
+    <li><a href="basics/pact-stubber.html" class="page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="advanced/index.html" class="page">Advanced usage</a>
   <ul>
@@ -96,7 +97,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.2.4*
+2.3.0-RC1
 </div>
 </div>
 <div class="nav-toc">
@@ -107,6 +108,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="basics/sbt-tasks.html" class="page">SBT Tasks</a></li>
     <li><a href="basics/sbt-commands.html" class="page">SBT Commands</a></li>
     <li><a href="basics/test-frameworks.html" class="page">Test frameworks</a></li>
+    <li><a href="basics/pact-stubber.html" class="page">Pact Stubber</a></li>
   </ul></li>
   <li><a href="advanced/index.html" class="page">Advanced usage</a>
   <ul>
@@ -160,40 +162,108 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li>The plugin - used for running Scala-Pact&rsquo;s tasks and commands</li>
 </ol>
 <p>As of version 2.2.0, both the test framework and the plugin require you to specify which versions of the Http and JSON libraries you require.</p>
-<h2><a href="#scalatest-library" name="scalatest-library" class="anchor"><span class="anchor-link"></span></a>ScalaTest library</h2>
-<p>Add the dependency to your <code>build.sbt</code> file like this:</p>
-<pre class="prettyprint"><code class="language-scala"><br/>import com.itv.scalapact.plugin._
+<p>Scala-Pact now has two branches based on SBT requirements.</p>
+<h4><a href="#sbt-1-x-compatible-latest-2-3-0-rc1-" name="sbt-1-x-compatible-latest-2-3-0-rc1-" class="anchor"><span class="anchor-link"></span></a>SBT 1.x compatible (Latest 2.3.0-RC1)</h4>
+<p>The all development going forward begins at <code>2.3.x</code> and resides on the <code>master</code> branch. For the sake of the maintainer&rsquo;s sanity, version 2.3.x and beyond will only support Scala 2.12 and SBT 1.x or greater.</p>
+<h4><a href="#sbt-0-13-x-compatible-latest-2-2-3-" name="sbt-0-13-x-compatible-latest-2-2-3-" class="anchor"><span class="anchor-link"></span></a>SBT 0.13.x compatible (Latest 2.2.3)</h4>
+<p>The reluctantly maintained EOL maintenance version of Scala-Pact lives on a branch called <code>v2.2.x</code>. These versions support Scala 2.10, 2.11, and 2.12 but are limited by only supporting SBT 0.13.x.</p>
+<h2><a href="#getting-setup" name="getting-setup" class="anchor"><span class="anchor-link"></span></a>Getting setup</h2>
+<p>Scala-Pact goes to great lengths to help you avoid or work around dependency conflicts.</p>
+<p>This is achieved by splitting the core functionality out of the library requirements which are provided separately. This allows you to align or avoid conflicting dependencies e.g. If your project uses a specific version of Circe, tell Scala-Pact to use Argonaut!</p>
+<p>One big change between 2.2.x and 2.3.x is that dependencies are now provided by TypeClass rather than just static linking. Please refer to the <a href="https://github.com/ITV/scala-pact/tree/master/example">example setup</a>.</p>
+<h3><a href="#youre-using-sbt-1-x-or-higher-" name="youre-using-sbt-1-x-or-higher-" class="anchor"><span class="anchor-link"></span></a>You&rsquo;re using SBT 1.x or higher:</h3>
+<p>Add the following lines to your <code>build.sbt</code> file to setup the test framework:</p>
+<pre><code>import com.itv.scalapact.plugin._
 
 enablePlugins(ScalaPactPlugin)
-
+        
 libraryDependencies ++= Seq(
-  &quot;com.itv&quot;       %% &quot;scalapact-argonaut-6-2&quot;  % &quot;2.2.0&quot; % &quot;test&quot;,
-  &quot;com.itv&quot;       %% &quot;scalapact-http4s-0-16-2&quot; % &quot;2.2.0&quot; % &quot;test&quot;,
-  &quot;com.itv&quot;       %% &quot;scalapact-scalatest&quot;     % &quot;2.2.0&quot; % &quot;test&quot;,
-  &quot;org.scalatest&quot; %% &quot;scalatest&quot;               % &quot;3.0.1&quot; % &quot;test&quot;
+  &quot;com.itv&quot;       %% &quot;scalapact-circe-0-9&quot;     % &quot;2.3.0-RC1&quot; % &quot;test&quot;,
+  &quot;com.itv&quot;       %% &quot;scalapact-http4s-0-18&quot;   % &quot;2.3.0-RC1&quot; % &quot;test&quot;,
+  &quot;com.itv&quot;       %% &quot;scalapact-scalatest&quot;     % &quot;2.3.0-RC1&quot; % &quot;test&quot;,
+  &quot;org.scalatest&quot; %% &quot;scalatest&quot;               % &quot;3.0.5&quot; % &quot;test&quot;
 )
 </code></pre>
-<h2><a href="#sbt-plugin" name="sbt-plugin" class="anchor"><span class="anchor-link"></span></a>SBT plugin</h2>
-<p>Add the plugin to your <code>project/plugins.sbt</code> file like this:</p>
-<pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
-  &quot;com.itv&quot; %% &quot;scalapact-argonaut-6-2&quot;  % &quot;2.2.0&quot;,
-  &quot;com.itv&quot; %% &quot;scalapact-http4s-0-16-2&quot; % &quot;2.2.0&quot;
+<p>Add this line to your <code>project/plugins.sbt</code> file to install the plugin:</p>
+<pre><code>addSbtPlugin(&quot;com.itv&quot; % &quot;sbt-scalapact&quot; % &quot;2.3.0-RC1&quot;)
+</code></pre>
+<p>This version of the plugin comes pre-packaged with the latest JSON and Http libraries. Thanks to the way SBT works, that one plugin line will work in most cases, but if you&rsquo;re still having conflicts, you can also do this to use your preferred libraries:</p>
+<pre><code> libraryDependencies ++= Seq(
+   &quot;com.itv&quot; %% &quot;scalapact-argonaut-6-2&quot; % &quot;2.3.0-RC1&quot;,
+   &quot;com.itv&quot; %% &quot;scalapact-http4s-0-16a&quot; % &quot;2.3.0-RC1&quot;
+ )
+ 
+ addSbtPlugin(&quot;com.itv&quot; % &quot;sbt-scalapact-nodeps&quot; % &quot;2.3.0-RC1&quot;)
+</code></pre>
+<p>In you&rsquo;re test suite, you will need the following imports:</p>
+<p>The DSL/builder import for Consumer tests:</p>
+<pre><code>  import com.itv.scalapact.ScalaPactForger._
+</code></pre>
+<p>Or this one for Verification tests:</p>
+<pre><code>  import com.itv.scalapact.ScalaPactVerify._
+</code></pre>
+<p>You&rsquo;ll also need to reference the json and http libraries specified in the <code>build.sbt</code> file:</p>
+<pre><code>  import com.itv.scalapact.circe09._
+  import com.itv.scalapact.http4s18._
+</code></pre>
+<p>Alternatively, these are also valid if you prefer:</p>
+<pre><code>  import com.itv.scalapact.json._
+  import com.itv.scalapact.http._
+</code></pre>
+<h4><a href="#other-sbt-1-x-pluggable-dependency-options" name="other-sbt-1-x-pluggable-dependency-options" class="anchor"><span class="anchor-link"></span></a>Other SBT 1.x pluggable dependency options</h4>
+<p>Please check the <a href="project-deps.html">compatibility matrix</a> before using.</p>
+<p>JSON Libraries</p>
+<pre><code>&quot;com.itv&quot; %% &quot;scalapact-argonaut-6-2&quot;  % &quot;2.3.0-RC1&quot;
+&quot;com.itv&quot; %% &quot;scalapact-circe-0-8&quot;     % &quot;2.3.0-RC1&quot;
+&quot;com.itv&quot; %% &quot;scalapact-circe-0-9&quot;     % &quot;2.3.0-RC1&quot;
+</code></pre>
+<p>HTTP Libraries</p>
+<pre><code>&quot;com.itv&quot; %% &quot;scalapact-http4s-0-16a&quot;  % &quot;2.3.0-RC1&quot;
+&quot;com.itv&quot; %% &quot;scalapact-http4s-0-17&quot;   % &quot;2.3.0-RC1&quot;
+&quot;com.itv&quot; %% &quot;scalapact-http4s-0-18&quot;   % &quot;2.3.0-RC1&quot;
+</code></pre>
+<h3><a href="#youre-using-sbt-0-13-17-or-lower-" name="youre-using-sbt-0-13-17-or-lower-" class="anchor"><span class="anchor-link"></span></a>You&rsquo;re using SBT 0.13.17 or lower:</h3>
+<p>Add the following lines to your <code>build.sbt</code> file to setup the test framework:</p>
+<pre><code>import com.itv.scalapact.plugin._
+
+enablePlugins(ScalaPactPlugin)
+        
+libraryDependencies ++= Seq(
+  &quot;com.itv&quot;       %% &quot;scalapact-circe-0-9&quot;     % &quot;2.2.3&quot; % &quot;test&quot;,
+  &quot;com.itv&quot;       %% &quot;scalapact-http4s-0-18-0&quot; % &quot;2.2.3&quot; % &quot;test&quot;,
+  &quot;com.itv&quot;       %% &quot;scalapact-scalatest&quot;     % &quot;2.2.3&quot; % &quot;test&quot;,
+  &quot;org.scalatest&quot; %% &quot;scalatest&quot;               % &quot;3.0.5&quot; % &quot;test&quot;
+)
+</code></pre>
+<p>Add these lines to your <code>project/plugins.sbt</code> file to install the plugin:</p>
+<pre><code>libraryDependencies ++= Seq(
+  &quot;com.itv&quot; %% &quot;scalapact-argonaut-6-2&quot;  % &quot;2.2.3&quot;,
+  &quot;com.itv&quot; %% &quot;scalapact-http4s-0-16-2&quot; % &quot;2.2.3&quot;
 )
 
-addSbtPlugin(&quot;com.itv&quot; % &quot;sbt-scalapact&quot; % &quot;2.2.0&quot;)
+addSbtPlugin(&quot;com.itv&quot; % &quot;sbt-scalapact&quot; % &quot;2.2.3&quot;)
 </code></pre>
-<h2><a href="#other-pluggable-dependency-options" name="other-pluggable-dependency-options" class="anchor"><span class="anchor-link"></span></a>Other pluggable dependency options</h2>
+<p>In you&rsquo;re test suite, you will need the following import for Consumer tests:</p>
+<pre><code>  import com.itv.scalapact.ScalaPactForger._
+</code></pre>
+<p>Or this one for Verification tests:</p>
+<pre><code>  import com.itv.scalapact.ScalaPactVerify._
+</code></pre>
+<p>Note that you can use different versions of Scala-Pact with the plugin and the testing framework, which can make Scala 2.10 compat issues easier to work around while we get the SBT 1.0 release sorted out.</p>
+<h4><a href="#other-sbt-0-13-17-pluggable-dependency-options" name="other-sbt-0-13-17-pluggable-dependency-options" class="anchor"><span class="anchor-link"></span></a>Other SBT 0.13.17 pluggable dependency options</h4>
 <p>Please check the <a href="project-deps.html">compatibility matrix</a> before using.</p>
 <p>JSON Libraries</p>
 <pre><code>&quot;com.itv&quot; %% &quot;scalapact-argonaut-6-1&quot;  % &quot;2.2.0&quot;
 &quot;com.itv&quot; %% &quot;scalapact-argonaut-6-2&quot;  % &quot;2.2.0&quot;
 &quot;com.itv&quot; %% &quot;scalapact-circe-0-8&quot;     % &quot;2.2.0&quot;
+&quot;com.itv&quot; %% &quot;scalapact-circe-0-9&quot;     % &quot;2.2.0&quot;
 </code></pre>
 <p>HTTP Libraries</p>
 <pre><code>&quot;com.itv&quot; %% &quot;scalapact-http4s-0-15-0a&quot;  % &quot;2.2.0&quot;
 &quot;com.itv&quot; %% &quot;scalapact-http4s-0-16-2&quot;   % &quot;2.2.0&quot;
 &quot;com.itv&quot; %% &quot;scalapact-http4s-0-16-2a&quot;  % &quot;2.2.0&quot;
 &quot;com.itv&quot; %% &quot;scalapact-http4s-0-17-0&quot;   % &quot;2.2.0&quot;
+&quot;com.itv&quot; %% &quot;scalapact-http4s-0-18-0&quot;   % &quot;2.2.0&quot;
 </code></pre>
 <div class="source-github">
 The source code for this page can be found <a href="https://github.com/ITV/scala-pact/tree/master/scalapact-docs/src/main/paradox/setup.md">here</a>.
@@ -211,9 +281,9 @@ The source code for this page can be found <a href="https://github.com/ITV/scala
 <ul>
   <li><a href="setup.html#setup-guide" class="header">Setup guide</a>
   <ul>
-    <li><a href="setup.html#scalatest-library" class="header">ScalaTest library</a></li>
-    <li><a href="setup.html#sbt-plugin" class="header">SBT plugin</a></li>
-    <li><a href="setup.html#other-pluggable-dependency-options" class="header">Other pluggable dependency options</a></li>
+    <li><a href="setup.html#sbt-1-x-compatible-latest-2-3-0-rc1-" class="header">SBT 1.x compatible (Latest 2.3.0-RC1)</a></li>
+    <li><a href="setup.html#sbt-0-13-x-compatible-latest-2-2-3-" class="header">SBT 0.13.x compatible (Latest 2.2.3)</a></li>
+    <li><a href="setup.html#getting-setup" class="header">Getting setup</a></li>
   </ul></li>
 </ul>
 </div>
