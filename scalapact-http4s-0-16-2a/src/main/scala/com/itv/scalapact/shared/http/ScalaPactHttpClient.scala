@@ -38,7 +38,7 @@ object ScalaPactHttpClient extends IScalaPactHttpClient {
     doRequestTask(Http4sClientHelper.doRequest, simpleRequest).unsafePerformSyncAttempt.toEither
 
   def doInteractionRequestSync(url: String, ir: InteractionRequest, clientTimeout: Duration,sslContextName: Option[String])(implicit sslContextMap: SslContextMap): Either[Throwable, InteractionResponse] =
-    doInteractionRequestTask(Http4sClientHelper.doRequest, url, ir, clientTimeout,sslContextName).unsafePerformSyncAttempt.toEither
+    doInteractionRequestTask(Http4sClientHelper.doRequest, url, ir, clientTimeout, sslContextName).unsafePerformSyncAttempt.toEither
 
   def doRequestTask(performRequest: (SimpleRequest, Client) => Task[SimpleResponse], simpleRequest: SimpleRequest)(implicit sslContextMap: SslContextMap): Task[SimpleResponse] =
     SslContextMap(simpleRequest)(sslContext => simpleRequestWithoutFakeHeader => performRequest(simpleRequestWithoutFakeHeader, Http4sClientHelper.buildPooledBlazeHttpClient(maxTotalConnections, 2.seconds, sslContext)))
