@@ -5,13 +5,21 @@ import javax.net.ssl.SSLContext
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.Properties
 
-case class ScalaPactSettings(protocol: Option[String], host: Option[String], port: Option[Int], localPactFilePath: Option[String], strictMode: Option[Boolean], clientTimeout: Option[Duration], outputPath: Option[String]) {
-  val giveHost: String = host.getOrElse("localhost")
-  val giveProtocol: String = protocol.getOrElse("http")
-  val givePort: Int = port.getOrElse(1234)
-  val giveStrictMode: Boolean = strictMode.getOrElse(false)
+case class ScalaPactSettings(
+    protocol: Option[String],
+    host: Option[String],
+    port: Option[Int],
+    localPactFilePath: Option[String],
+    strictMode: Option[Boolean],
+    clientTimeout: Option[Duration],
+    outputPath: Option[String]
+) {
+  val giveHost: String            = host.getOrElse("localhost")
+  val giveProtocol: String        = protocol.getOrElse("http")
+  val givePort: Int               = port.getOrElse(1234)
+  val giveStrictMode: Boolean     = strictMode.getOrElse(false)
   val giveClientTimeout: Duration = clientTimeout.getOrElse(Duration(1, SECONDS))
-  val giveOutputPath: String = outputPath.getOrElse(Properties.envOrElse("pact.rootDir", "target/pacts"))
+  val giveOutputPath: String      = outputPath.getOrElse(Properties.envOrElse("pact.rootDir", "target/pacts"))
 
   def +(other: ScalaPactSettings): ScalaPactSettings =
     ScalaPactSettings.append(this, other)
@@ -49,7 +57,7 @@ case class ScalaPactSettings(protocol: Option[String], host: Option[String], por
       strictMode.map(p => ("--strict", p.toString)),
       clientTimeout.map(p => ("--clientTimeout", p.toSeconds.toString)),
       outputPath.map(p => ("--out", p))
-    ).collect { case Some(s) => s}.toMap
+    ).collect { case Some(s) => s }.toMap
 }
 
 object ScalaPactSettings {
@@ -58,8 +66,7 @@ object ScalaPactSettings {
 
   def default: ScalaPactSettings = ScalaPactSettings(None, None, None, None, None, None, None)
 
-  val parseArguments: Seq[String] => ScalaPactSettings = args =>
-    (Helpers.pair andThen convertToArguments)(args.toList)
+  val parseArguments: Seq[String] => ScalaPactSettings = args => (Helpers.pair andThen convertToArguments)(args.toList)
 
   def append(a: ScalaPactSettings, b: ScalaPactSettings): ScalaPactSettings =
     ScalaPactSettings(
@@ -79,7 +86,8 @@ object ScalaPactSettings {
       port = argMap.get("--port").flatMap(Helpers.safeStringToInt),
       localPactFilePath = argMap.get("--source"),
       strictMode = argMap.get("--strict").flatMap(Helpers.safeStringToBoolean),
-      clientTimeout = argMap.get("--clientTimeout").flatMap(Helpers.safeStringToLong).flatMap(i => Option(Duration(i, SECONDS))),
+      clientTimeout =
+        argMap.get("--clientTimeout").flatMap(Helpers.safeStringToLong).flatMap(i => Option(Duration(i, SECONDS))),
       outputPath = argMap.get("--out")
     )
 }

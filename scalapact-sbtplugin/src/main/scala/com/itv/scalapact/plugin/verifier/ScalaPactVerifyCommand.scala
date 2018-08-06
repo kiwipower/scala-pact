@@ -16,7 +16,7 @@ import com.itv.scalapact.shared.PactLogger
 object ScalaPactVerifyCommand {
 
   lazy val pactVerifyCommandHyphen: Command = Command.args("pact-verify", "<options>")(pactVerify)
-  lazy val pactVerifyCommandCamel: Command = Command.args("pactVerify", "<options>")(pactVerify)
+  lazy val pactVerifyCommandCamel: Command  = Command.args("pactVerify", "<options>")(pactVerify)
 
   implicit def pStateConversion(ps: Seq[(String, String => Boolean)]): List[ProviderState] =
     ps.toList.map(p => ProviderState(p._1, p._2))
@@ -24,7 +24,9 @@ object ScalaPactVerifyCommand {
   private lazy val pactVerify: (State, Seq[String]) => State = (state, args) => {
 
     doPactVerify(
-      Project.extract(state).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings.parseArguments(args),
+      Project.extract(state).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings.parseArguments(
+        args
+      ),
       Project.extract(state).get(ScalaPactPlugin.autoImport.providerStates),
       Project.extract(state).get(ScalaPactPlugin.autoImport.providerStateMatcher),
       Project.extract(state).get(ScalaPactPlugin.autoImport.pactBrokerAddress),
@@ -37,7 +39,16 @@ object ScalaPactVerifyCommand {
     state
   }
 
-  def doPactVerify(scalaPactSettings: ScalaPactSettings, providerStates: Seq[(String, String => Boolean)], providerStateMatcher: PartialFunction[String, Boolean], pactBrokerAddress: String, projectVersion: String, providerName: String, consumerNames: Seq[String], versionedConsumerNames: Seq[(String, String)]): Unit = {
+  def doPactVerify(
+      scalaPactSettings: ScalaPactSettings,
+      providerStates: Seq[(String, String => Boolean)],
+      providerStateMatcher: PartialFunction[String, Boolean],
+      pactBrokerAddress: String,
+      projectVersion: String,
+      providerName: String,
+      consumerNames: Seq[String],
+      versionedConsumerNames: Seq[(String, String)]
+  ): Unit = {
 
     PactLogger.message("*************************************".white.bold)
     PactLogger.message("** ScalaPact: Running Verifier     **".white.bold)
@@ -51,18 +62,23 @@ object ScalaPactVerifyCommand {
       projectVersion,
       providerName,
       consumerNames.toList,
-      versionedConsumerNames =
-        versionedConsumerNames.toList
-          .map(t => VersionedConsumer(t._1, t._2))
+      versionedConsumerNames = versionedConsumerNames.toList
+        .map(t => VersionedConsumer(t._1, t._2))
     )
 
-    val successfullyVerified = verify(LocalPactFileLoader.loadPactFiles(pactReader)(true), pactVerifySettings)(pactReader, new SslContextMap(Map()))(scalaPactSettings)
+    val successfullyVerified = verify(LocalPactFileLoader.loadPactFiles(pactReader)(true), pactVerifySettings)(
+      pactReader,
+      new SslContextMap(Map())
+    )(scalaPactSettings)
 
     if (successfullyVerified) sys.exit(0) else sys.exit(1)
 
   }
 
-  def combineProviderStatesIntoTotalFunction(directPactStates: Seq[(String, String => Boolean)], patternMatchedStates: PartialFunction[String, Boolean]): String => Boolean = {
+  def combineProviderStatesIntoTotalFunction(
+      directPactStates: Seq[(String, String => Boolean)],
+      patternMatchedStates: PartialFunction[String, Boolean]
+  ): String => Boolean = {
     val l = directPactStates
       .map { ps =>
         { case s: String if s == ps._1 => ps._2(ps._1) }: PartialFunction[String, Boolean]

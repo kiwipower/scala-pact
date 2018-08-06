@@ -10,7 +10,9 @@ object ScalaPactForger {
 
   implicit def toOption[A](a: A): Option[A] = Option(a)
 
-  implicit def rulesToOptionalList(rules: ScalaPactForger.ScalaPactMatchingRules): Option[List[ScalaPactForger.ScalaPactMatchingRule]] =
+  implicit def rulesToOptionalList(
+      rules: ScalaPactForger.ScalaPactMatchingRules
+  ): Option[List[ScalaPactForger.ScalaPactMatchingRule]] =
     Option(rules.rules)
 
   implicit val options: ScalaPactOptions = ScalaPactOptions.DefaultOptions
@@ -32,7 +34,12 @@ object ScalaPactForger {
       def and(provider: String): ScalaPactDescription = new ScalaPactDescription(consumer, provider, None, Nil)
     }
 
-    class ScalaPactDescription(consumer: String, provider: String, sslContextName: Option[String], interactions: List[ScalaPactInteraction]) {
+    class ScalaPactDescription(
+        consumer: String,
+        provider: String,
+        sslContextName: Option[String],
+        interactions: List[ScalaPactInteraction]
+    ) {
 
       /**
         * Adds interactions to the Pact. Interactions should be created using the helper object 'interaction'
@@ -40,11 +47,15 @@ object ScalaPactForger {
         * @param interaction [ScalaPactInteraction] definition
         * @return [ScalaPactDescription] to allow the builder to continue
         */
-      def addInteraction(interaction: ScalaPactInteraction): ScalaPactDescription = new ScalaPactDescription(consumer, provider, sslContextName, interactions ++ List(interaction))
+      def addInteraction(interaction: ScalaPactInteraction): ScalaPactDescription =
+        new ScalaPactDescription(consumer, provider, sslContextName, interactions ++ List(interaction))
 
-      def addSslContextForServer(name: String): ScalaPactDescription = new ScalaPactDescription(consumer, provider, Some(name), interactions)
+      def addSslContextForServer(name: String): ScalaPactDescription =
+        new ScalaPactDescription(consumer, provider, Some(name), interactions)
 
-      def runConsumerTest[A](test: ScalaPactMockConfig => A)(implicit options: ScalaPactOptions, sslContextMap: SslContextMap): A = {
+      def runConsumerTest[A](
+          test: ScalaPactMockConfig => A
+      )(implicit options: ScalaPactOptions, sslContextMap: SslContextMap): A =
         ScalaPactMock.runConsumerIntegrationTest(strict)(
           ScalaPactDescriptionFinal(
             consumer,
@@ -54,28 +65,45 @@ object ScalaPactForger {
             options
           )
         )(test)
-      }
 
     }
 
   }
 
   object interaction {
-    def description(message: String): ScalaPactInteraction = new ScalaPactInteraction(message, None, None, ScalaPactRequest.default, ScalaPactResponse.default)
+    def description(message: String): ScalaPactInteraction =
+      new ScalaPactInteraction(message, None, None, ScalaPactRequest.default, ScalaPactResponse.default)
   }
 
-  class ScalaPactInteraction(description: String, providerState: Option[String], sslContextName: Option[String], request: ScalaPactRequest, response: ScalaPactResponse) {
-    def given(state: String): ScalaPactInteraction = new ScalaPactInteraction(description, Option(state), sslContextName, request, response)
+  class ScalaPactInteraction(
+      description: String,
+      providerState: Option[String],
+      sslContextName: Option[String],
+      request: ScalaPactRequest,
+      response: ScalaPactResponse
+  ) {
+    def given(state: String): ScalaPactInteraction =
+      new ScalaPactInteraction(description, Option(state), sslContextName, request, response)
 
-    def withSsl(sslContextName: String): ScalaPactInteraction = new ScalaPactInteraction(description, providerState, Some(sslContextName), request, response)
+    def withSsl(sslContextName: String): ScalaPactInteraction =
+      new ScalaPactInteraction(description, providerState, Some(sslContextName), request, response)
 
     def uponReceiving(path: String): ScalaPactInteraction = uponReceiving(GET, path, None, Map.empty, None, None)
 
-    def uponReceiving(method: ScalaPactMethod, path: String): ScalaPactInteraction = uponReceiving(method, path, None, Map.empty, None, None)
+    def uponReceiving(method: ScalaPactMethod, path: String): ScalaPactInteraction =
+      uponReceiving(method, path, None, Map.empty, None, None)
 
-    def uponReceiving(method: ScalaPactMethod, path: String, query: Option[String]): ScalaPactInteraction = uponReceiving(method, path, query, Map.empty, None, None)
+    def uponReceiving(method: ScalaPactMethod, path: String, query: Option[String]): ScalaPactInteraction =
+      uponReceiving(method, path, query, Map.empty, None, None)
 
-    def uponReceiving(method: ScalaPactMethod, path: String, query: Option[String], headers: Map[String, String], body: Option[String], matchingRules: Option[List[ScalaPactMatchingRule]]): ScalaPactInteraction = new ScalaPactInteraction(
+    def uponReceiving(
+        method: ScalaPactMethod,
+        path: String,
+        query: Option[String],
+        headers: Map[String, String],
+        body: Option[String],
+        matchingRules: Option[List[ScalaPactMatchingRule]]
+    ): ScalaPactInteraction = new ScalaPactInteraction(
       description,
       providerState,
       sslContextName,
@@ -85,11 +113,18 @@ object ScalaPactForger {
 
     def willRespondWith(status: Int): ScalaPactInteraction = willRespondWith(status, Map.empty, None, None)
 
-    def willRespondWith(status: Int, body: String): ScalaPactInteraction = willRespondWith(status, Map.empty, Option(body), None)
+    def willRespondWith(status: Int, body: String): ScalaPactInteraction =
+      willRespondWith(status, Map.empty, Option(body), None)
 
-    def willRespondWith(status: Int, headers: Map[String, String], body: String): ScalaPactInteraction = willRespondWith(status, headers, Option(body), None)
+    def willRespondWith(status: Int, headers: Map[String, String], body: String): ScalaPactInteraction =
+      willRespondWith(status, headers, Option(body), None)
 
-    def willRespondWith(status: Int, headers: Map[String, String], body: Option[String], matchingRules: Option[List[ScalaPactMatchingRule]]): ScalaPactInteraction = new ScalaPactInteraction(
+    def willRespondWith(
+        status: Int,
+        headers: Map[String, String],
+        body: Option[String],
+        matchingRules: Option[List[ScalaPactMatchingRule]]
+    ): ScalaPactInteraction = new ScalaPactInteraction(
       description,
       providerState,
       sslContextName,
@@ -97,20 +132,49 @@ object ScalaPactForger {
       ScalaPactResponse(status, headers, body, matchingRules)
     )
 
-    def finalise: ScalaPactInteractionFinal = ScalaPactInteractionFinal(description, providerState, sslContextName, request, response)
+    def finalise: ScalaPactInteractionFinal =
+      ScalaPactInteractionFinal(description, providerState, sslContextName, request, response)
   }
 
-  case class ScalaPactDescriptionFinal(consumer: String, provider: String, serverSslContextName: Option[String], interactions: List[ScalaPactInteractionFinal], options: ScalaPactOptions) {
-    def withHeaderForSsl: ScalaPactDescriptionFinal = copy(interactions = interactions.map(i => i.copy(request = i.request.copy(headers = i.request.headers addOpt (SslContextMap.sslContextHeaderName -> i.sslContextName)))))
+  case class ScalaPactDescriptionFinal(
+      consumer: String,
+      provider: String,
+      serverSslContextName: Option[String],
+      interactions: List[ScalaPactInteractionFinal],
+      options: ScalaPactOptions
+  ) {
+    def withHeaderForSsl: ScalaPactDescriptionFinal =
+      copy(
+        interactions = interactions.map(
+          i =>
+            i.copy(
+              request = i.request
+                .copy(headers = i.request.headers addOpt (SslContextMap.sslContextHeaderName -> i.sslContextName))
+            )
+        )
+      )
   }
 
-  case class ScalaPactInteractionFinal(description: String, providerState: Option[String], sslContextName: Option[String], request: ScalaPactRequest, response: ScalaPactResponse)
+  case class ScalaPactInteractionFinal(
+      description: String,
+      providerState: Option[String],
+      sslContextName: Option[String],
+      request: ScalaPactRequest,
+      response: ScalaPactResponse
+  )
 
   object ScalaPactRequest {
     val default: ScalaPactRequest = ScalaPactRequest(GET, "/", None, Map.empty, None, None)
   }
 
-  case class ScalaPactRequest(method: ScalaPactMethod, path: String, query: Option[String], headers: Map[String, String], body: Option[String], matchingRules: Option[List[ScalaPactMatchingRule]])
+  case class ScalaPactRequest(
+      method: ScalaPactMethod,
+      path: String,
+      query: Option[String],
+      headers: Map[String, String],
+      body: Option[String],
+      matchingRules: Option[List[ScalaPactMatchingRule]]
+  )
 
   sealed trait ScalaPactMatchingRule {
     val key: String
@@ -156,10 +220,16 @@ object ScalaPactForger {
     val default: ScalaPactResponse = ScalaPactResponse(200, Map.empty, None, None)
   }
 
-  case class ScalaPactResponse(status: Int, headers: Map[String, String], body: Option[String], matchingRules: Option[List[ScalaPactMatchingRule]])
+  case class ScalaPactResponse(
+      status: Int,
+      headers: Map[String, String],
+      body: Option[String],
+      matchingRules: Option[List[ScalaPactMatchingRule]]
+  )
 
   object ScalaPactOptions {
-    val DefaultOptions: ScalaPactOptions = ScalaPactOptions(writePactFiles = true, outputPath = Properties.envOrElse("pact.rootDir", "target/pacts"))
+    val DefaultOptions: ScalaPactOptions =
+      ScalaPactOptions(writePactFiles = true, outputPath = Properties.envOrElse("pact.rootDir", "target/pacts"))
   }
 
   case class ScalaPactOptions(writePactFiles: Boolean, outputPath: String)

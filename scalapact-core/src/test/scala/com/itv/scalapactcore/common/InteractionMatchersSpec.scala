@@ -74,19 +74,19 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
 
       val expected = None
       val received = Option(
-          Map(
-            "Upgrade-Insecure-Requests" -> "1",
-            "Connection" -> "keep-alive",
-            "Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Cache-Control" -> "max-age=0",
-            "Accept-Language" -> "en-US,en;q=0.8",
-            "Accept-Encoding" -> "gzip",
-            "deflate" -> "",
-            "sdch" -> "",
-            "User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",
-            "Host" -> "localhost:1234"
-          )
+        Map(
+          "Upgrade-Insecure-Requests" -> "1",
+          "Connection"                -> "keep-alive",
+          "Accept"                    -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Cache-Control"             -> "max-age=0",
+          "Accept-Language"           -> "en-US,en;q=0.8",
+          "Accept-Encoding"           -> "gzip",
+          "deflate"                   -> "",
+          "sdch"                      -> "",
+          "User-Agent"                -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",
+          "Host"                      -> "localhost:1234"
         )
+      )
 
       matchHeaders(None, expected, received).isSuccess shouldEqual true
 
@@ -97,21 +97,21 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
       val expected = Option(
         Map(
           "Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-          "Host" -> "localhost:1234"
+          "Host"   -> "localhost:1234"
         )
       )
       val received = Option(
         Map(
           "Upgrade-Insecure-Requests" -> "1",
-          "Connection" -> "keep-alive",
-          "Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-          "Cache-Control" -> "max-age=0",
-          "Accept-Language" -> "en-US,en;q=0.8",
-          "Accept-Encoding" -> "gzip",
-          "deflate" -> "",
-          "sdch" -> "",
-          "User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",
-          "Host" -> "localhost:1234"
+          "Connection"                -> "keep-alive",
+          "Accept"                    -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Cache-Control"             -> "max-age=0",
+          "Accept-Language"           -> "en-US,en;q=0.8",
+          "Accept-Encoding"           -> "gzip",
+          "deflate"                   -> "",
+          "sdch"                      -> "",
+          "User-Agent"                -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",
+          "Host"                      -> "localhost:1234"
         )
       )
 
@@ -143,31 +143,39 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
     it("should be able to use regex to match more realistic custom headers") {
       val expected = Option(
         Map(
-          "Accept" -> "application/vnd.itv.oas.variant.v1+json",
+          "Accept"     -> "application/vnd.itv.oas.variant.v1+json",
           "X-Trace-Id" -> "7656163a-eefb-49f8-9fac-b20b33dfb51b"
         )
       )
       val received = Option(
         Map(
-          "Accept" -> "application/vnd.itv.oas.variant.v1+json",
+          "Accept"     -> "application/vnd.itv.oas.variant.v1+json",
           "X-Trace-Id" -> "7656163a-eefb-49f8-9fac-b20b33dfb51B" // Changed to captial B
         )
       )
 
-      matchHeaders(Option(Map("$.headers.X-Trace-Id" -> MatchingRule("regex", "^.{0,38}$", min = None))), expected, received).isSuccess shouldEqual true
-      matchHeaders(Option(Map("$.headers.X-Trace-Id" -> MatchingRule("regex", "^fish", min = None))), expected, received).isSuccess shouldEqual false
+      matchHeaders(
+        Option(Map("$.headers.X-Trace-Id" -> MatchingRule("regex", "^.{0,38}$", min = None))),
+        expected,
+        received
+      ).isSuccess shouldEqual true
+      matchHeaders(
+        Option(Map("$.headers.X-Trace-Id" -> MatchingRule("regex", "^fish", min = None))),
+        expected,
+        received
+      ).isSuccess shouldEqual false
     }
 
     it("should be able to use regex to match some headers out of sequence") {
       val expected = Option(
         Map(
           "sauce" -> "ketchup",
-          "fish" -> "chips"
+          "fish"  -> "chips"
         )
       )
       val received = Option(
         Map(
-          "fish" -> "peas",
+          "fish"  -> "peas",
           "sauce" -> "ketchup"
         )
       )
@@ -184,8 +192,14 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
       val expected = "/foo/bar/hello?id=abc123&name=joey&job=dentist&hobby=skiing"
 
       matchPaths(PathAndQuery(expected, None), PathAndQuery(expected, None)).isSuccess shouldEqual true
-      matchPaths(PathAndQuery(expected, None), PathAndQuery("/foo/bar/hello?hobby=skiing&name=joey&id=abc123&job=dentist", None)).isSuccess shouldEqual true
-      matchPaths(PathAndQuery(expected, None), PathAndQuery("/foo/bar/hello?hobby=skiing&name=joey", "id=abc123&job=dentist")).isSuccess shouldEqual true
+      matchPaths(
+        PathAndQuery(expected, None),
+        PathAndQuery("/foo/bar/hello?hobby=skiing&name=joey&id=abc123&job=dentist", None)
+      ).isSuccess shouldEqual true
+      matchPaths(
+        PathAndQuery(expected, None),
+        PathAndQuery("/foo/bar/hello?hobby=skiing&name=joey", "id=abc123&job=dentist")
+      ).isSuccess shouldEqual true
       matchPaths(PathAndQuery(expected, None), PathAndQuery("/foo/bar/hello?hobby=skiing", None)).isSuccess shouldEqual false
       matchPaths(PathAndQuery("/foo/bar/hello", None), PathAndQuery("/foo/bar/hello?hobby=skiing", None)).isSuccess shouldEqual true // forgiving in what you receive...
 
@@ -295,7 +309,6 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
             matchBodies(None, expected, received)(r).isSuccess shouldEqual true
           }
       }
-
 
     }
 
@@ -408,7 +421,9 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
           )
         )
 
-      val res: OutcomeAndInteraction = InteractionMatchers.matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response).get
+      val res: OutcomeAndInteraction = InteractionMatchers
+        .matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response)
+        .get
 
       res.closestMatchingInteraction.description shouldEqual "A"
       res.outcome shouldBe MatchOutcomeSuccess
@@ -440,7 +455,9 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
           )
         )
 
-      val res: OutcomeAndInteraction = InteractionMatchers.matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response).get
+      val res: OutcomeAndInteraction = InteractionMatchers
+        .matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response)
+        .get
 
       res.closestMatchingInteraction.description shouldEqual "B"
 
@@ -480,7 +497,9 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
           )
         )
 
-      val res: OutcomeAndInteraction = InteractionMatchers.matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response).get
+      val res: OutcomeAndInteraction = InteractionMatchers
+        .matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response)
+        .get
 
       res.closestMatchingInteraction.description shouldEqual "A"
 
@@ -520,7 +539,9 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
           )
         )
 
-      val res: OutcomeAndInteraction = InteractionMatchers.matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response).get
+      val res: OutcomeAndInteraction = InteractionMatchers
+        .matchOrFindClosestResponse(true, pactExpected.interactions, pactActual.interactions.head.response)
+        .get
 
       res.closestMatchingInteraction.description shouldEqual "B"
 
@@ -535,8 +556,8 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
 
     }
 
-    def makeInteraction(description: String, status: String, body: String): String = {
-        s"""
+    def makeInteraction(description: String, status: String, body: String): String =
+      s"""
           |    {
           |      "description" : "$description",
           |      "request" : {
@@ -550,7 +571,6 @@ class InteractionMatchersSpec extends FunSpec with Matchers {
           |      }
           |    }
         """.stripMargin
-    }
 
     def makePact(interactions: String*): Pact = {
       val json: String =

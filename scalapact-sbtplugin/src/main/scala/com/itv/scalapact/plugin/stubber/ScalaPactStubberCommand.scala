@@ -13,7 +13,7 @@ import com.itv.scalapact.shared.PactLogger
 object ScalaPactStubberCommand {
 
   lazy val pactStubberCommandHyphen: Command = Command.args("pact-stubber", "<options>")(pactStubber)
-  lazy val pactStubberCommandCamel: Command = Command.args("pactStubber", "<options>")(pactStubber)
+  lazy val pactStubberCommandCamel: Command  = Command.args("pactStubber", "<options>")(pactStubber)
 
   private lazy val pactStubber: (State, Seq[String]) => State = (state, args) => {
 
@@ -24,7 +24,9 @@ object ScalaPactStubberCommand {
     val pactTestedState = Command.process("pact-test", state)
 
     runStubber(
-      Project.extract(state).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings.parseArguments(args),
+      Project.extract(state).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings.parseArguments(
+        args
+      ),
       interactionManagerInstance
     )
 
@@ -33,8 +35,10 @@ object ScalaPactStubberCommand {
 
   def interactionManagerInstance: InteractionManager = new InteractionManager
 
-  def runStubber(scalaPactSettings: ScalaPactSettings, interactionManager: InteractionManager): Unit = {
-    (loadPactFiles(pactReader)(true)(scalaPactSettings.giveOutputPath) andThen interactionManager.addToInteractionManager andThen startServer(interactionManager, sslContextName = None)(pactReader, pactWriter, implicitly[SslContextMap]))(scalaPactSettings)
-  }
+  def runStubber(scalaPactSettings: ScalaPactSettings, interactionManager: InteractionManager): Unit =
+    (loadPactFiles(pactReader)(true)(scalaPactSettings.giveOutputPath) andThen interactionManager.addToInteractionManager andThen startServer(
+      interactionManager,
+      sslContextName = None
+    )(pactReader, pactWriter, implicitly[SslContextMap]))(scalaPactSettings)
 
 }

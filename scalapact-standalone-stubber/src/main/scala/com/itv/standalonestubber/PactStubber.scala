@@ -18,9 +18,11 @@ object PactStubber {
 
     val interactionManager: InteractionManager = new InteractionManager
 
-    (ScalaPactSettings.parseArguments andThen loadPactFiles(pactReader)(true)("pacts") andThen interactionManager.addToInteractionManager andThen startServer(interactionManager, sslContextName = None)(pactReader, pactWriter, implicitly[SslContextMap]))(args)
+    (ScalaPactSettings.parseArguments andThen loadPactFiles(pactReader)(true)("pacts") andThen interactionManager.addToInteractionManager andThen startServer(
+      interactionManager,
+      sslContextName = None
+    )(pactReader, pactWriter, implicitly[SslContextMap]))(args)
 
   }
 
 }
-

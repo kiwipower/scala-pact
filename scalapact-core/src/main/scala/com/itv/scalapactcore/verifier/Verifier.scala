@@ -12,10 +12,15 @@ import com.itv.scalapact.shared.PactLogger
 
 object Verifier {
 
-  def verify(loadPactFiles: String => ScalaPactSettings => ConfigAndPacts, pactVerifySettings: PactVerifySettings)(implicit pactReader: IPactReader, sslContextMap: SslContextMap): ScalaPactSettings => Boolean = arguments => {
+  def verify(
+      loadPactFiles: String => ScalaPactSettings => ConfigAndPacts,
+      pactVerifySettings: PactVerifySettings
+  )(implicit pactReader: IPactReader, sslContextMap: SslContextMap): ScalaPactSettings => Boolean = arguments => {
 
     val pacts: List[Pact] = if (arguments.localPactFilePath.isDefined) {
-      PactLogger.message(s"Attempting to use local pact files at: '${arguments.localPactFilePath.getOrElse("<path missing>")}'".white.bold)
+      PactLogger.message(
+        s"Attempting to use local pact files at: '${arguments.localPactFilePath.getOrElse("<path missing>")}'".white.bold
+      )
       loadPactFiles("pacts")(arguments).pacts
     } else {
 
@@ -23,23 +28,36 @@ object Verifier {
         pactVerifySettings.consumerNames.map(c => VersionedConsumer(c, "/latest")) ++
           pactVerifySettings.versionedConsumerNames.map(vc => vc.copy(version = "/version/" + vc.version))
 
-      val latestPacts: List[Pact] = versionConsumers.map { consumer =>
-        ValidatedDetails.buildFrom(consumer.name, pactVerifySettings.providerName, pactVerifySettings.pactBrokerAddress, consumer.version) match {
-          case Left(l) =>
-            PactLogger.error(l.red)
-            None
+      val latestPacts: List[Pact] = versionConsumers
+        .map { consumer =>
+          ValidatedDetails.buildFrom(
+            consumer.name,
+            pactVerifySettings.providerName,
+            pactVerifySettings.pactBrokerAddress,
+            consumer.version
+          ) match {
+            case Left(l) =>
+              PactLogger.error(l.red)
+              None
 
-          case Right(v) =>
-            fetchAndReadPact(v.validatedAddress.address + "/pacts/provider/" + v.providerName + "/consumer/" + v.consumerName + v.consumerVersion)
+            case Right(v) =>
+              fetchAndReadPact(
+                v.validatedAddress.address + "/pacts/provider/" + v.providerName + "/consumer/" + v.consumerName + v.consumerVersion
+              )
+          }
         }
-      }.collect {
-        case Some(s) => s
-      }
+        .collect {
+          case Some(s) => s
+        }
 
       latestPacts
     }
 
-    PactLogger.message(s"Verifying against '${arguments.giveHost}' on port '${arguments.givePort}' with a timeout of ${arguments.clientTimeout.map(_.toSeconds.toString).getOrElse("<unspecified>")} second(s).".white.bold)
+    PactLogger.message(
+      s"Verifying against '${arguments.giveHost}' on port '${arguments.givePort}' with a timeout of ${arguments.clientTimeout
+        .map(_.toSeconds.toString)
+        .getOrElse("<unspecified>")} second(s).".white.bold
+    )
 
     val startTime = System.currentTimeMillis().toDouble
 
@@ -47,21 +65,22 @@ object Verifier {
       PactVerifyResult(
         pact = pact,
         results = pact.interactions.map { interaction =>
-
           val maybeProviderState =
-            interaction
-              .providerState
+            interaction.providerState
               .map(p => ProviderState(p, PartialFunction(pactVerifySettings.providerStates)))
 
-          val result = (doRequest(arguments, maybeProviderState) andThen attemptMatch(arguments.giveStrictMode, List(interaction))) (interaction.request)
+          val result = (doRequest(arguments, maybeProviderState) andThen attemptMatch(
+            arguments.giveStrictMode,
+            List(interaction)
+          ))(interaction.request)
 
           PactVerifyResultInContext(result, interaction.description)
         }
       )
     }
 
-    val endTime = System.currentTimeMillis().toDouble
-    val testCount = pactVerifyResults.flatMap(_.results).length
+    val endTime      = System.currentTimeMillis().toDouble
+    val testCount    = pactVerifyResults.flatMap(_.results).length
     val failureCount = pactVerifyResults.flatMap(_.results).count(_.result.isLeft)
 
     pactVerifyResults.foreach { result =>
@@ -84,7 +103,9 @@ object Verifier {
     }
 
     pactVerifyResults.foreach { result =>
-      PactLogger.message(("Results for pact between " + result.pact.consumer.name + " and " + result.pact.provider.name).white.bold)
+      PactLogger.message(
+        ("Results for pact between " + result.pact.consumer.name + " and " + result.pact.provider.name).white.bold
+      )
       result.results.foreach { res =>
         res.result match {
           case Right(r) =>
@@ -100,7 +121,10 @@ object Verifier {
   }
 
   // NOTE: Can't use flatMap due to scala 2.10.6
-  private def attemptMatch(strictMatching: Boolean, interactions: List[Interaction]): Either[String, InteractionResponse] => Either[String, Interaction] = {
+  private def attemptMatch(
+      strictMatching: Boolean,
+      interactions: List[Interaction]
+  ): Either[String, InteractionResponse] => Either[String, Interaction] = {
     case Right(i) =>
       matchResponse(strictMatching, interactions)(i)
 
@@ -108,8 +132,10 @@ object Verifier {
       Left(s)
   }
 
-  private def doRequest(arguments: ScalaPactSettings, maybeProviderState: Option[ProviderState])(implicit sslContextMap: SslContextMap): InteractionRequest => Either[String, InteractionResponse] = interactionRequest => {
-    val baseUrl = s"${arguments.giveProtocol}://" + arguments.giveHost + ":" + arguments.givePort.toString
+  private def doRequest(arguments: ScalaPactSettings, maybeProviderState: Option[ProviderState])(
+      implicit sslContextMap: SslContextMap
+  ): InteractionRequest => Either[String, InteractionResponse] = interactionRequest => {
+    val baseUrl       = s"${arguments.giveProtocol}://" + arguments.giveHost + ":" + arguments.givePort.toString
     val clientTimeout = arguments.giveClientTimeout
 
     try {
@@ -139,7 +165,9 @@ object Verifier {
     } catch {
       case t: Throwable =>
         if (maybeProviderState.isDefined) {
-          PactLogger.error(s"Error executing unknown provider state function with key: ${maybeProviderState.map(_.key).getOrElse("<missing key>")}".red)
+          PactLogger.error(
+            s"Error executing unknown provider state function with key: ${maybeProviderState.map(_.key).getOrElse("<missing key>")}".red
+          )
         } else {
           PactLogger.error("Error executing unknown provider state function!".red)
         }
@@ -149,8 +177,13 @@ object Verifier {
     try {
       InteractionRequest.unapply(interactionRequest) match {
         case Some((Some(_), Some(_), _, _, _, _)) =>
-
-          ScalaPactHttpClient.doInteractionRequestSync(baseUrl, interactionRequest.withoutSslContextHeader, clientTimeout, interactionRequest.sslContextName)
+          ScalaPactHttpClient
+            .doInteractionRequestSync(
+              baseUrl,
+              interactionRequest.withoutSslContextHeader,
+              clientTimeout,
+              interactionRequest.sslContextName
+            )
             .leftMap { t =>
               PactLogger.error(s"Error in response: ${t.getMessage}".red)
               t.getMessage
@@ -166,28 +199,34 @@ object Verifier {
 
   }
 
-  private def fetchAndReadPact(address: String)(implicit pactReader: IPactReader, sslContextMap: SslContextMap): Option[Pact] = {
+  private def fetchAndReadPact(
+      address: String
+  )(implicit pactReader: IPactReader, sslContextMap: SslContextMap): Option[Pact] = {
 
     PactLogger.message(s"Attempting to fetch pact from pact broker at: $address".white.bold)
 
-    ScalaPactHttpClient.doRequestSync(SimpleRequest(address, "", HttpMethod.GET, Map("Accept" -> "application/json"), None, sslContextName = None)).map {
-      case r: SimpleResponse if r.is2xx =>
-        val pact = r.body.map(pactReader.jsonStringToPact).flatMap {
-          case Right(p) => Option(p)
-          case Left(msg) =>
-            PactLogger.error(s"Error: $msg".yellow)
-            None
-        }
+    ScalaPactHttpClient
+      .doRequestSync(
+        SimpleRequest(address, "", HttpMethod.GET, Map("Accept" -> "application/json"), None, sslContextName = None)
+      )
+      .map {
+        case r: SimpleResponse if r.is2xx =>
+          val pact = r.body.map(pactReader.jsonStringToPact).flatMap {
+            case Right(p) => Option(p)
+            case Left(msg) =>
+              PactLogger.error(s"Error: $msg".yellow)
+              None
+          }
 
-        if (pact.isEmpty) {
-          PactLogger.error("Could not convert good response to Pact:\n" + r.body.getOrElse(""))
-          pact
-        } else pact
+          if (pact.isEmpty) {
+            PactLogger.error("Could not convert good response to Pact:\n" + r.body.getOrElse(""))
+            pact
+          } else pact
 
-      case _ =>
-        PactLogger.error(s"Failed to load consumer pact from: $address".red)
-        None
-    } match {
+        case _ =>
+          PactLogger.error(s"Failed to load consumer pact from: $address".red)
+          None
+      } match {
       case Right(p) =>
         p
       case Left(e) =>
@@ -209,16 +248,33 @@ case class ProviderState(key: String, f: String => Boolean)
 
 case class VersionedConsumer(name: String, version: String)
 
-case class PactVerifySettings(providerStates: (String => Boolean), pactBrokerAddress: String, projectVersion: String, providerName: String, consumerNames: List[String], versionedConsumerNames: List[VersionedConsumer])
+case class PactVerifySettings(
+    providerStates: (String => Boolean),
+    pactBrokerAddress: String,
+    projectVersion: String,
+    providerName: String,
+    consumerNames: List[String],
+    versionedConsumerNames: List[VersionedConsumer]
+)
 
-case class ValidatedDetails(validatedAddress: ValidPactBrokerAddress, providerName: String, consumerName: String, consumerVersion: String)
+case class ValidatedDetails(
+    validatedAddress: ValidPactBrokerAddress,
+    providerName: String,
+    consumerName: String,
+    consumerVersion: String
+)
 
 object ValidatedDetails {
 
-  def buildFrom(consumerName: String, providerName: String, pactBrokerAddress: String, consumerVersion: String): Either[String, ValidatedDetails] =
+  def buildFrom(
+      consumerName: String,
+      providerName: String,
+      pactBrokerAddress: String,
+      consumerVersion: String
+  ): Either[String, ValidatedDetails] =
     for {
-      consumerName <- Helpers.urlEncode(consumerName)
-      providerName <- Helpers.urlEncode(providerName)
+      consumerName     <- Helpers.urlEncode(consumerName)
+      providerName     <- Helpers.urlEncode(providerName)
       validatedAddress <- PactBrokerAddressValidation.checkPactBrokerAddress(pactBrokerAddress)
     } yield ValidatedDetails(validatedAddress, providerName, consumerName, consumerVersion)
 

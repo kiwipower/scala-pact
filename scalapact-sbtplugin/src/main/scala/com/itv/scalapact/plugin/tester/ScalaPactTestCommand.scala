@@ -13,23 +13,26 @@ import com.itv.scalapact.shared.PactLogger
 object ScalaPactTestCommand {
 
   lazy val pactTestCommandHyphen: Command = Command.args("pact-test", "<options>")(pactTest)
-  lazy val pactTestCommandCamel: Command = Command.args("pactTest", "<options>")(pactTest)
+  lazy val pactTestCommandCamel: Command  = Command.args("pactTest", "<options>")(pactTest)
 
   private lazy val pactTest: (State, Seq[String]) => State = (state, args) => {
 
-      PactLogger.message("*************************************".white.bold)
-      PactLogger.message("** ScalaPact: Running tests        **".white.bold)
-      PactLogger.message("*************************************".white.bold)
+    PactLogger.message("*************************************".white.bold)
+    PactLogger.message("** ScalaPact: Running tests        **".white.bold)
+    PactLogger.message("*************************************".white.bold)
 
-      PactLogger.message("> ScalaPact running: clean + test commands first")
+    PactLogger.message("> ScalaPact running: clean + test commands first")
 
-      val cleanState = Command.process("clean", state)
-      val testedState = Command.process("test", cleanState)
+    val cleanState  = Command.process("clean", state)
+    val testedState = Command.process("test", cleanState)
 
-      doPactPack(Project.extract(testedState).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings.parseArguments(args))
+    doPactPack(
+      Project.extract(testedState).get(ScalaPactPlugin.autoImport.scalaPactEnv).toSettings + ScalaPactSettings
+        .parseArguments(args)
+    )
 
-      testedState
-    }
+    testedState
+  }
 
   def doPactPack(scalaPactSettings: ScalaPactSettings): Unit = {
     PactLogger.message("*************************************".white.bold)
@@ -57,37 +60,43 @@ object ScalaPactTestCommand {
       PactLogger.message("> " + errorCount.toString + " errors")
 
     } else {
-      PactLogger.error(s"No Pact files found in '${scalaPactSettings.giveOutputPath}'. Make sure you have Pact CDC tests and have run 'sbt test' or 'sbt pact-test'.".red)
+      PactLogger.error(
+        s"No Pact files found in '${scalaPactSettings.giveOutputPath}'. Make sure you have Pact CDC tests and have run 'sbt test' or 'sbt pact-test'.".red
+      )
     }
   }
 
-  private def squashPactFiles(outputPath: String, name: String, files: List[File])(implicit pactReader: IPactReader, pactWriter: IPactWriter): Int = {
+  private def squashPactFiles(outputPath: String, name: String, files: List[File])(
+      implicit pactReader: IPactReader,
+      pactWriter: IPactWriter
+  ): Int = {
     //Yuk!
     var errorCount = 0
 
     val pactList = {
-      files.map { file =>
-        val fileContents = try {
-          val contents = Option(Source.fromFile(file).getLines().mkString)
+      files
+        .map { file =>
+          val fileContents = try {
+            val contents = Option(Source.fromFile(file).getLines().mkString)
 
-          file.delete()
+            file.delete()
 
-          contents
-        } catch {
-          case _: Throwable =>
-            PactLogger.message(("Problem reading Pact file at path: " + file.getCanonicalPath).red)
-            errorCount = errorCount + 1
-            None
-        }
-        fileContents.flatMap { t =>
-          pactReader.jsonStringToPact(t) match {
-            case Right(r) => Option(r)
-            case Left(_) =>
-              errorCount += 1
+            contents
+          } catch {
+            case _: Throwable =>
+              PactLogger.message(("Problem reading Pact file at path: " + file.getCanonicalPath).red)
+              errorCount = errorCount + 1
               None
           }
+          fileContents.flatMap { t =>
+            pactReader.jsonStringToPact(t) match {
+              case Right(r) => Option(r)
+              case Left(_) =>
+                errorCount += 1
+                None
+            }
+          }
         }
-      }
         .collect { case Some(s) => s }
     }
 
@@ -100,7 +109,9 @@ object ScalaPactTestCommand {
           accumulatedPact.copy(interactions = accumulatedPact.interactions ++ nextPact.interactions)
         }
 
-        PactContractWriter.writePactContracts(outputPath)(combined.provider.name)(combined.consumer.name)(pactWriter.pactToJsonString(combined))
+        PactContractWriter.writePactContracts(outputPath)(combined.provider.name)(combined.consumer.name)(
+          pactWriter.pactToJsonString(combined)
+        )
 
         ()
     }

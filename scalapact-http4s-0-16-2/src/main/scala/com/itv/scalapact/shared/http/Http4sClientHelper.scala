@@ -20,7 +20,9 @@ object Http4sClientHelper {
   )
 
   private val extractResponse: Response => Task[SimpleResponse] = r =>
-    r.bodyAsText.runLog[Task, String].map(_.mkString).map { b => SimpleResponse(r.status.code, r.headers, Some(b)) }
+    r.bodyAsText.runLog[Task, String].map(_.mkString).map { b =>
+      SimpleResponse(r.status.code, r.headers, Some(b))
+    }
 
   def defaultClient: Client =
     buildPooledBlazeHttpClient(1, Duration(1, SECONDS))

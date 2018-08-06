@@ -16,19 +16,20 @@ object PactWriter extends IPactWriter {
     val interactions: Vector[Json] =
       pact.interactions.toVector
         .map { i =>
-
           val maybeRequestBody = i.request.body.flatMap { rb =>
             parse(rb).toOption.orElse(Option(Json.fromString(rb)))
           }
 
           val maybeResponseBody = i.response.body.flatMap { rb =>
-           parse(rb).toOption.orElse(Option(Json.fromString(rb)))
+            parse(rb).toOption.orElse(Option(Json.fromString(rb)))
           }
 
-          val bodilessInteraction = i.copy(
-            request = i.request.copy(body = None),
-            response = i.response.copy(body = None)
-          ).asJson
+          val bodilessInteraction = i
+            .copy(
+              request = i.request.copy(body = None),
+              response = i.response.copy(body = None)
+            )
+            .asJson
 
           val withRequestBody = {
             for {
@@ -38,7 +39,7 @@ object PactWriter extends IPactWriter {
             } yield updated.top
           } match {
             case ok @ Some(_) => ok.flatten
-            case None => Option(bodilessInteraction) // There wasn't a body, but there was still an interaction.
+            case None         => Option(bodilessInteraction) // There wasn't a body, but there was still an interaction.
           }
 
           val withResponseBody = {
@@ -50,14 +51,16 @@ object PactWriter extends IPactWriter {
             }
           } match {
             case ok @ Some(_) => ok.flatten
-            case None => withRequestBody // There wasn't a body, but there was still an interaction.
+            case None         => withRequestBody // There wasn't a body, but there was still an interaction.
           }
 
           withResponseBody
-        }.collect { case Some(s) => s }
+        }
+        .collect { case Some(s) => s }
 
     val json: Option[Json] =
-      pact.copy(interactions = Nil)
+      pact
+        .copy(interactions = Nil)
         .asJson
         .hcursor
         .downField("interactions")
@@ -66,7 +69,11 @@ object PactWriter extends IPactWriter {
 
     // I don't believe you can ever see this exception.
     json
-      .getOrElse(throw new Exception("Something went really wrong serialising the following pact into json: " + pact.renderAsString))
+      .getOrElse(
+        throw new Exception(
+          "Something went really wrong serialising the following pact into json: " + pact.renderAsString
+        )
+      )
       .pretty(Printer.spaces2.copy(dropNullValues = true))
   }
 
