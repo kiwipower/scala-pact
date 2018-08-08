@@ -49,6 +49,18 @@ object Http4sRequestResponseFactory {
 
       case OPTIONS =>
         Method.OPTIONS
+
+      case PATCH =>
+        Method.PATCH
+
+      case CONNECT =>
+        Method.CONNECT
+
+      case TRACE =>
+        Method.TRACE
+
+      case HEAD =>
+        Method.HEAD
     }
 
   def buildRequest(request: SimpleRequest): Task[Request] =
