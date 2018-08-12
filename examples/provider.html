@@ -30,7 +30,7 @@
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.3.0-RC1
+2.3.3*
 </div>
 </div>
 <div class="nav-toc">
@@ -97,7 +97,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.3.0-RC1
+2.3.3*
 </div>
 </div>
 <div class="nav-toc">
@@ -187,7 +187,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     }
 }
 </code></pre>
-<p>The function signature is <code>String =&gt; Boolean</code> where the <code>String</code> is the key value of the pact contract and <code>Boolean</code> is a way for you to say if your setup operation was a success or a failure.</p>
+<p>The function signature is <code>String =&gt; ProviderStateResult</code> where the <code>String</code> is the key value of the pact contract, <code>ProviderStateResult.result</code> is a way for you to say if your setup operation was a success or a failure and <code>ProviderStateResult.modifyRequest</code> is a function to modify the request before sending it, for example in case that you need to add a header for authorization. There is an implicit to allow you write the function as <code>String =&gt; Boolean</code> if you dont have the need to modify the request.</p>
 <h2><a href="#things-to-note" name="things-to-note" class="anchor"><span class="anchor-link"></span></a>Things to note</h2>
 <ol>
   <li>The consumer and provider scala projects both use different case classes to represent the data. This does not matter, only the Pact file matters.</li>
