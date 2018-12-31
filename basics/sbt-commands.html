@@ -30,7 +30,7 @@
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.3.4*
+2.3.5*
 </div>
 </div>
 <div class="nav-toc">
@@ -97,7 +97,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>Scala-Pact
 </a>
 <div class="version-number">
-2.3.4*
+2.3.5*
 </div>
 </div>
 <div class="nav-toc">
@@ -191,9 +191,13 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <h4><a href="#command-line-options" name="command-line-options" class="anchor"><span class="anchor-link"></span></a>Command Line Options</h4>
 <p>Before we can publish, we have to tell Scala-Pact where it can find a running instance of Pact Broker by adding the following line to either <code>build.sbt</code> or <code>pact.sbt</code>:</p>
 <p><code>pactBrokerAddress := &quot;http://my-pact-broker:4321&quot;</code></p>
+<p>If your broker uses basic authentication you can specify the credentials like so:</p>
+<p><code>pactBrokerCredentials := (&quot;username&quot;, &quot;password&quot;)</code></p>
 <p>You can also specify the version you wish to publish under by adding:</p>
 <p><code>pactContractVersion := &quot;1.0.0&quot;</code></p>
 <p>If you omit this variable or set it to an empty string, the main project version will be the version used to publish against.</p>
+<p>You can specify the tags of the contract by adding: <code>pactContractTags := List(&quot;tag1&quot;, &quot;tag2&quot;)</code></p>
+<p>If you omit this variable or set it to an empty list, the contract will not be tagged under publishing. </p>
 <p>You can then use the publish command to generate and upload your pact files to pact broker:</p>
 <p><code>sbt pact-publish</code></p>
 <p>Note that your Pact files will have the same version number as the normal project version defined in your <code>build.sbt</code> file, because you versioned that breaking API change - right?</p>
