@@ -61,7 +61,6 @@ addCommandAlias(
 )
 
 lazy val commonSettings = Seq(
-  version := "2.3.10-SNAPSHOT",
   organization := "com.itv",
   scalaVersion := scala212,
   libraryDependencies ++= Seq(
@@ -427,3 +426,4 @@ lazy val scalaPactProject =
     .aggregate(argonaut62, circe08, circe09, circe10, circe11)
     .aggregate(docs)
     .aggregate(pactSpec, testsWithDeps)
+    .aggregate()
