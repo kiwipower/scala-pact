@@ -1,7 +1,8 @@
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
-  "com.sun.xml.bind" % "jaxb-impl" % "2.3.2"
+  "javax.xml.bind" % "jaxb-api" % "2.3.1",
+   "xerces" % "xercesImpl" % "2.12.0"
 )
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.6")

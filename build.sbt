@@ -55,7 +55,8 @@ lazy val commonSettings = Seq(
   scalaVersion := scala212,
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-    "com.sun.xml.bind" % "jaxb-impl" % "2.3.2"
+    "javax.xml.bind" % "jaxb-api" % "2.3.1",
+    "xerces" % "xercesImpl" % "2.12.0"
   ),
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
     Wart.Overloading,
