@@ -1,7 +1,7 @@
 package com.itv.scalapact
 
 import cats.effect.IO
-import com.itv.scalapact.http4s20.impl._
+import com.itv.scalapact.http4s21.impl._
 import com.itv.scalapact.shared.IResultPublisher
 import com.itv.scalapact.shared.typeclasses.{IPactStubber, IScalaPactHttpClient}
 
