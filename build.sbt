@@ -1,3 +1,5 @@
+import ohnosequences.sbt.SbtS3Resolver.autoImport._
+
 lazy val compilerOptions212 = scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
   "-encoding",
@@ -215,7 +217,11 @@ lazy val http4s021 =
         "org.http4s"             %% "http4s-blaze-client" % "0.21.0-M6",
         "org.http4s"             %% "http4s-dsl"          % "0.21.0-M6",
         "com.github.tomakehurst" % "wiremock"             % "1.56" % "test"
-      )
+      ),
+      s3sse := true,
+      s3acl := None,
+      publishMavenStyle := true,
+      publishTo := Some(s3resolver.value(s"Stakz S3 bucket", s3(s"releases.kiwi-stakz-builds")))
     )
     .dependsOn(shared)
     .settings(compilerOptions212: _*)
